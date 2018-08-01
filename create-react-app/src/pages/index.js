@@ -12,13 +12,14 @@ import withRoot from '../withRoot';
 import States from './states'
 import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
+import throttle from '../utilities/throttle';
 
 const styles = theme => ({
   root: {
-    //textAlign: 'center',
     paddingTop: theme.spacing.unit * 20,
     display: 'flex',
     flexDirection: 'column',
+    textAlign: 'center'
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -38,9 +39,6 @@ const styles = theme => ({
     color: '#ffffff',
     margin: theme.spacing.unit
   }
-  // searchBubbles: {
-  //   width: 800
-  // }
 });
 
 class Index extends React.Component {
@@ -62,10 +60,13 @@ class Index extends React.Component {
 
   handleClick = (event) => {
     let clickedName = event.target.innerText;
-    let selected = this.state.available.find(attribute => attribute === clickedName)
+    let index = this.state.available.indexOf(clickedName)
+    let selected = this.state.available[index];
     let newAvailable = this.state.available.filter(attribute => attribute !== clickedName)
     let newSelected = this.state.selected.slice();
+
     newSelected.push(selected);
+    this.reFocus();
     this.setState({
       available: newAvailable,
       selected: newSelected,
@@ -85,6 +86,11 @@ class Index extends React.Component {
       selected: newSelected
     })
   };
+
+  reFocus = () => {
+    let input = document.getElementsByTagName("input")[0];
+    input.focus();
+  }
 
   render() {
     const { classes } = this.props;
@@ -113,6 +119,7 @@ class Index extends React.Component {
             <div className={classes.searchBubbles}>
               {selected.map((usState, idx) => (
                 <Chip
+                  key={idx}
                   label={usState}
                   onDelete={() => this.handleDelete(idx)}
                   className={classes.selectedChip}
@@ -120,11 +127,11 @@ class Index extends React.Component {
                 )
               }
             </div>
-
           </div>
           <div className={classes.searchBubbles}>
             {selectFrom.map(usState => (
               <Chip
+                key={usState}
                 label={usState}
                 onClick={this.handleClick}
                 className={classes.chip}
